@@ -5,26 +5,40 @@ namespace Tyuiu.LavrentevVA.Sprint6.Task3.V21.Lib
     {
         public int[,] Calculate(int[,] matrix)
         {
-            int rows = matrix.GetLength(0);
-            int cols = matrix.GetLength(1);
+            int rows = matrix.GetUpperBound(0) + 1;
+            int cols = matrix.Length / rows;
 
-            for (int i = 0; i < rows - 1; i++)
+            int count = 0;
+
+            for (int i = 0; i < rows; i++)
             {
-                for (int j = 0; j < rows - i - 1; j++)
+                for (int j = 0; j < cols; j++)
                 {
-                    if (matrix[j, 0] > matrix[j + 1, 0])
+                    if (matrix[i, j] > 0 && matrix[i, j] % 2 == 0)
                     {
-                        // Swap entire rows
-                        for (int k = 0; k < cols; k++)
-                        {
-                            int temp = matrix[j, k];
-                            matrix[j, k] = matrix[j + 1, k];
-                            matrix[j + 1, k] = temp;
-                        }
+                        count++;
                     }
                 }
             }
-            return matrix;
+            int[,] result = new int[rows, cols];
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    if (matrix[i, j] > 0 && matrix[i, j] % 2 == 0)
+                    {
+                        result[i, j] = count;
+                    }
+                    else
+                    {
+                        result[i, j] = matrix[i, j];
+                    }
+                }
+            }
+            return result;
+
+
+
         }
     }
 }
