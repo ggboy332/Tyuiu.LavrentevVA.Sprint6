@@ -5,40 +5,32 @@ namespace Tyuiu.LavrentevVA.Sprint6.Task3.V21.Lib
     {
         public int[,] Calculate(int[,] matrix)
         {
-            int rows = matrix.GetUpperBound(0) + 1;
-            int cols = matrix.Length / rows;
+            //Дан массив 5 на 5 элементов. Выполнить сортировку по возрастанию в первом столбце. Результат вывести в DataGridView. Графический интерфейс оформить по шаблону из лекции.  26 -15   7   1  -4   14  26  22  17  27   -8  31  22  34   4  -18  16  -2  16  27    5   2  -4  16  15
+            int rows = matrix.GetLength(0);
+            int cols = matrix.GetLength(1);
 
-            int count = 0;
-
-            for (int i = 0; i < rows; i++)
+            if (cols < 4)
             {
-                for (int j = 0; j < cols; j++)
+                throw new ArgumentException("Матрица должна иметь 5 столбцов");
+            }
+
+            int[,] resultMatrix = (int[,])matrix.Clone();
+            for(int i = 0; i < rows - 1; i++)
+            {
+                for(int j = 0; j < rows - i - 1; j++)
                 {
-                    if (matrix[i, j] > 0 && matrix[i, j] % 2 == 0)
+                    if(resultMatrix[j, 0] > resultMatrix[j + 1, 0])
                     {
-                        count++;
+                        for(int k = 0; k < cols; k++)
+                        {
+                            int temp = resultMatrix[j, k];
+                            resultMatrix[j, k] = resultMatrix[j + 1, k];
+                            resultMatrix[j + 1, k] = temp;
+                        }
                     }
                 }
             }
-            int[,] result = new int[rows, cols];
-            for (int i = 0; i < rows; i++)
-            {
-                for (int j = 0; j < cols; j++)
-                {
-                    if (matrix[i, j] > 0 && matrix[i, j] % 2 == 0)
-                    {
-                        result[i, j] = count;
-                    }
-                    else
-                    {
-                        result[i, j] = matrix[i, j];
-                    }
-                }
-            }
-            return result;
-
-
-
+            return resultMatrix;
         }
     }
 }
