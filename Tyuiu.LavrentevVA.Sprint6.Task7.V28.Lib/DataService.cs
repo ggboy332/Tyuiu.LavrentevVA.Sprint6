@@ -1,33 +1,80 @@
 ﻿using tyuiu.cources.programming.interfaces.Sprint6;
+using System;
+using System.IO;
+using System.Linq;
+
 namespace Tyuiu.LavrentevVA.Sprint6.Task7.V28.Lib
 {
     public class DataService : ISprint6Task7V28
     {
         public int[,] GetMatrix(string path)
         {
-            // Дан файл InPutFileTask7V28.csv в котором хранится матрица целочисленных значений. Загрузить файл через openFileDialog в объект dataGridViewIn. Изменить в седьмой строке числа не равные 13 на 0. Результат вывести в объект dataGridViewOut. Сохранить результат в файл OutPutFileTask7.csv через saveFileDialog. Графический интерфейс пользователя оформить по образцу как в лекции
+            if (!File.Exists(path))
+                throw new FileNotFoundException("Файл не найден.", path);
 
-            var lines = System.IO.File.ReadAllLines(path);
-            int rowCount = lines.Length;
-            int colCount = lines[0].Split(new char[] { ',', ';' }, System.StringSplitOptions.RemoveEmptyEntries).Length;
-            int[,] matrix = new int[rowCount, colCount];
-            for (int i = 0; i < rowCount; i++)
+            var rows = File.ReadAllLines(path)
+                .Where(l => !string.IsNullOrWhiteSpace(l))
+                .Select(line => line
+                    .Split(new[] { ',', ';', '\t', ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(s => int.Parse(s.Trim()))
+                    .ToArray())
+                .ToArray();
+
+            if (rows.Length == 0) return new int[0, 0];
+
+            int r = rows.Length, c = rows[0].Length;
+            var res = new int[r, c];
+            for (int i = 0; i < r; i++)
+                for (int j = 0; j < c; j++)
+                    res[i, j] = rows[i][j];
+            return res;
+        }
+
+        // Process: in the 7th column (index 6) set values != 13 to 0
+        public int[,] ProcessMatrix(int[,] input)
+        {
+            if (input == null) throw new ArgumentNullException(nameof(input));
+
+            int rows = input.GetLength(0);
+            int cols = input.GetLength(1);
+
+            var result = new int[rows, cols];
+
+            // copy
+            for (int r = 0; r < rows; r++)
+                for (int c = 0; c < cols; c++)
+                    result[r, c] = input[r, c];
+
+            int targetCol = 6; // 7th column (0-based)
+            if (cols > targetCol)
             {
-                var values = lines[i].Split(new char[] { ',', ';' }, System.StringSplitOptions.RemoveEmptyEntries);
-                for (int j = 0; j < colCount; j++)
+                for (int r = 0; r < rows; r++)
                 {
-                    matrix[i, j] = int.Parse(values[j]);
+                    if (result[r, targetCol] != 13)
+                        result[r, targetCol] = 0;
                 }
             }
-            for (int j = 0; j < colCount; j++)
+
+            return result;
+        }
+
+        public void SaveToFile(string path, int[,] matrix)
+        {
+            if (matrix == null) throw new ArgumentNullException(nameof(matrix));
+            int rows = matrix.GetLength(0);
+            int cols = matrix.GetLength(1);
+
+            using (var sw = new StreamWriter(path))
             {
-                if (matrix[6, j] != 13)
+                for (int r = 0; r < rows; r++)
                 {
-                    matrix[6, j] = 0;
+                    var parts = new string[cols];
+                    for (int c = 0; c < cols; c++)
+                        parts[c] = matrix[r, c].ToString();
+
+                    sw.WriteLine(string.Join(",", parts));
                 }
             }
-            return matrix;
-
         }
     }
 }
